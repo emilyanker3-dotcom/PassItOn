@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pass It On · 主界面</title>
+<script>
+if(localStorage.getItem('pio_demo_session')!=='active'&&sessionStorage.getItem('pio_demo_session')!=='active'){
+  window.location.replace('login.html');
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0a06;--ink2:#2b2218;--muted:#7c6e62;--muted2:#a89c92;
+  --border:rgba(13,10,6,.1);--border2:rgba(13,10,6,.055);
+  --rose:#bf3f5e;--rose2:#d96878;--rose-bg:rgba(191,63,94,.07);--rose-glow:rgba(191,63,94,.18);
+  --gold:#9e7520;--gold-bg:rgba(158,117,32,.09);
+  --sage:#247350;--sage-bg:rgba(36,115,80,.08);--sage-glow:rgba(36,115,80,.2);
+  --sky:#1e6fa0;--sky-bg:rgba(30,111,160,.08);
+  --amber:#b56018;--amber-bg:rgba(181,96,24,.09);
+  --cream:#f7f3ec;--surface:#f0e9de;--card:#fff;
+  --dark:#0d0a06;--dark2:#1c1408;
+  --SW:62px;--TH:54px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--ink)}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:var(--TH);z-index:90;
+  background:rgba(247,243,236,.94);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1.4rem 0 0;
+}
+.tb-brand{
+  width:var(--SW);height:var(--TH);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);
+}
+.brand-pill{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:14px;color:#fff;background:var(--rose);
+  padding:4px 11px;border-radius:50px;letter-spacing:.3px;
+}
+.tb-mid{flex:1;display:flex;align-items:center;gap:1rem;padding:0 1.4rem}
+.tb-hello{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.tb-hello strong{color:var(--ink);font-weight:500}
+.tb-search{
+  display:flex;align-items:center;gap:7px;background:var(--surface);
+  border:1px solid var(--border);border-radius:50px;padding:6px 14px;
+  width:220px;transition:all .2s;
+}
+.tb-search:focus-within{border-color:var(--rose);background:#fff;box-shadow:0 0 0 3px var(--rose-bg)}
+.tb-search input{border:none;background:transparent;font-size:12px;color:var(--ink);font-family:'Noto Sans SC',sans-serif;outline:none;flex:1}
+.tb-search input::placeholder{color:var(--muted2)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.quota-chip{
+  display:flex;align-items:center;gap:5px;font-size:11px;
+  color:var(--sage);background:var(--sage-bg);
+  border:1px solid rgba(36,115,80,.18);border-radius:50px;padding:4px 11px;
+}
+.notif-btn{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--border);
+  background:transparent;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;position:relative;transition:all .2s;
+}
+.notif-btn:hover{background:var(--surface)}
+.notif-pip{
+  position:absolute;top:4px;right:4px;width:7px;height:7px;
+  border-radius:50%;background:var(--rose);border:1.5px solid var(--cream);
+}
+.user-btn{display:flex;align-items:center;gap:7px;cursor:pointer}
+.user-av{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--rose-bg);border:1.5px solid var(--rose2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  overflow:hidden;
+}
+.user-av img{width:100%;height:100%;object-fit:cover}
+.user-name{font-size:13px;font-weight:500;color:var(--ink)}
+.logout-btn{
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  border-radius:50px;padding:5px 10px;font-size:11px;cursor:pointer;
+  font-family:'Noto Sans SC',sans-serif;transition:all .2s;
+}
+.logout-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-bg)}
+
+/* NOTIF DROPDOWN */
+.nd{
+  position:fixed;top:calc(var(--TH)+6px);right:1.4rem;
+  width:300px;background:var(--card);border:1px solid var(--border);
+  border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.12);
+  z-index:200;display:none;overflow:hidden;
+}
+.nd.open{display:block;animation:popIn .2s ease}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.nd-hd{padding:.8rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.nd-hd h4{font-size:13px;font-weight:500}
+.nd-clr{font-size:11px;color:var(--rose);border:none;background:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif}
+.nd-it{display:flex;gap:8px;padding:.8rem 1rem;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .15s}
+.nd-it:hover{background:var(--surface)}
+.nd-it:last-child{border:none}
+.nd-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:5px}
+.nd-dot.r{background:var(--border)}
+.nd-tx{font-size:12px;color:var(--ink);line-height:1.55}
+.nd-tm{font-size:11px;color:var(--muted2);margin-top:2px}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  position:fixed;left:0;top:var(--TH);bottom:0;width:var(--SW);
+  background:rgba(247,243,236,.95);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 0;gap:3px;z-index:80;
+}
+.sn{
+  width:40px;height:40px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;cursor:pointer;transition:all .2s;
+  position:relative;border:1px solid transparent;color:var(--muted);
+}
+.sn:hover{background:var(--surface);color:var(--ink)}
+.sn.on{background:var(--rose-bg);border-color:var(--rose-glow);color:var(--rose)}
+.sn-img{width:19px;height:19px;display:block;flex-shrink:0;object-fit:contain}
+.sn-img.dreamer-icon,.sn-img.hope-icon{
+  filter:brightness(0) saturate(100%) invert(48%) sepia(53%) saturate(1009%) hue-rotate(300deg) brightness(94%) contrast(89%);
+}
+.sn-img.pass-icon{
+  filter:brightness(0) saturate(100%) invert(39%) sepia(27%) saturate(1131%) hue-rotate(102deg) brightness(92%) contrast(87%);
+}
+.sn-img.data-icon{
+  filter:brightness(0) saturate(100%) invert(50%) sepia(72%) saturate(527%) hue-rotate(4deg) brightness(91%) contrast(89%);
+}
+.sn.on .sn-img{
+  filter:brightness(0) saturate(100%) invert(34%) sepia(53%) saturate(1407%) hue-rotate(305deg) brightness(91%) contrast(91%);
+}
+.profile-icon{
+  width:20px;height:20px;position:relative;display:block;
+  color:#8b5c9e;flex-shrink:0;
+}
+.profile-icon::before{
+  content:'';position:absolute;left:7px;top:1px;width:7px;height:7px;
+  border-radius:50%;background:currentColor;
+}
+.profile-icon::after{
+  content:'';position:absolute;left:3px;bottom:1px;width:15px;height:9px;
+  border-radius:9px 9px 3px 3px;background:currentColor;
+}
+.sn.on .profile-icon{color:var(--rose)}
+.sn .tt{
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--dark);color:#fff;font-size:11px;padding:4px 9px;
+  border-radius:5px;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .15s;z-index:99;font-family:'Noto Sans SC',sans-serif;
+}
+.sn:hover .tt{opacity:1}
+.s-div{width:24px;height:1px;background:var(--border);margin:4px 0}
+.s-bot{margin-top:auto}
+
+/* ─── MAIN SCROLL AREA ─── */
+.main{
+  position:fixed;left:var(--SW);top:var(--TH);right:0;bottom:0;
+  overflow-y:auto;overflow-x:hidden;
+}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ─── PANELS ─── */
+.pnl{display:none;min-height:calc(100vh - var(--TH));animation:fadeUp .3s ease}
+.pnl.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SHARED ─── */
+.sec-hd{padding:1.8rem 2rem 1rem;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.sec-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);margin-bottom:4px}
+.sec-ttl{font-family:'Playfair Display',serif;font-size:30px;color:var(--ink);line-height:1.1}
+.sec-ttl em{font-style:italic;color:var(--rose)}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.7;max-width:480px}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 2rem .8rem}
+.chip{padding:5px 14px;border-radius:50px;font-size:12px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.chip:hover{border-color:var(--rose);color:var(--rose)}
+.chip.on{background:var(--rose);border-color:var(--rose);color:#fff}
+
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:13px;padding:0 2rem 2.5rem}
+.g4{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px}
+
+/* card shell */
+.kard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;transition:all .25s;cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.kard:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(0,0,0,.09)}
+.kard-img{height:115px;overflow:hidden;position:relative;background:linear-gradient(135deg,#f0e8de,#e0d4c8)}
+.kard-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.kard:hover .kard-img img{transform:scale(1.04)}
+.kard-img-grad{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(13,10,6,.45))}
+.kard-img-tag{position:absolute;bottom:8px;left:8px}
+.kard-body{padding:1.1rem;flex:1;display:flex;flex-direction:column;gap:7px}
+.kard-ttl{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+.kard-txt{font-size:12px;color:var(--muted);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kard-box{font-size:12px;padding:7px 10px;border-radius:7px;line-height:1.6}
+.kard-box.need{background:var(--surface);color:var(--ink2)}
+.kard-box.pledge{background:#edf7f1;color:#1a5c3a}
+.kard-box strong{font-weight:500}
+.kard-box.need strong{color:var(--rose)}
+.kard-box.pledge strong{color:var(--sage)}
+.kard-ft{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid var(--border2);margin-top:auto}
+.mini-user{display:flex;align-items:center;gap:7px}
+.mini-av{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--rose-bg);border:1px solid var(--rose-glow);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  overflow:hidden;flex-shrink:0;
+}
+.mini-av img{width:100%;height:100%;object-fit:cover}
+.mini-nm{font-size:12px;font-weight:500;color:var(--ink)}
+.mini-loc{font-size:10px;color:var(--muted2)}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:3px 8px;border-radius:50px}
+.t-rose{background:var(--rose-bg);color:var(--rose)}
+.t-sage{background:var(--sage-bg);color:var(--sage)}
+.t-gold{background:var(--gold-bg);color:var(--gold)}
+.t-sky{background:var(--sky-bg);color:var(--sky)}
+.t-amber{background:var(--amber-bg);color:var(--amber)}
+
+/* progress */
+.prog{height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--rose),var(--rose2));border-radius:2px}
+.prog-mt{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-top:4px}
+
+/* buttons */
+.btn-r{padding:8px 20px;background:var(--rose);color:#fff;border:none;border-radius:50px;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;letter-spacing:.3px}
+.btn-r:hover{opacity:.88;transform:translateY(-1px)}
+.btn-o{padding:7px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:50px;font-size:12px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s}
+.btn-o:hover{border-color:var(--ink);color:var(--ink)}
+.btn-sm{padding:5px 13px;border-radius:50px;border:1px solid var(--rose);color:var(--rose);background:transparent;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif;white-space:nowrap}
+.btn-sm:hover{background:var(--rose);color:#fff}
+.btn-sm.sage{border-color:var(--sage);color:var(--sage)}
+.btn-sm.sage:hover{background:var(--sage);color:#fff}
+.btn-sm.dis{border-color:var(--border);color:var(--muted2);cursor:not-allowed;opacity:.5}
+
+/* ═══════════════════════════════
+   PANEL 1 — 发愿板
+   ═══════════════════════════════ */
+
+/* hero guide */
+.wish-hero{
+  margin:0 2rem 1.6rem;
+  border-radius:18px;overflow:hidden;
+  background:linear-gradient(135deg,#1a1008 0%,#2e1420 55%,#0e1a10 100%);
+  display:flex;align-items:stretch;position:relative;
+}
+.wh-glow{
+  position:absolute;top:-80px;right:80px;width:320px;height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(191,63,94,.2),transparent 65%);
+  pointer-events:none;
+}
+.wh-glow2{
+  position:absolute;bottom:-60px;left:40px;width:200px;height:200px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(36,115,80,.15),transparent 65%);
+  pointer-events:none;
+}
+.wh-left{flex:1;padding:2rem 2rem 2rem 2.2rem;position:relative;z-index:1}
+.wh-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.9rem}
+.wh-ttl{font-family:'Playfair Display',serif;font-size:26px;color:#fff;line-height:1.3;margin-bottom:.7rem}
+.wh-ttl em{font-style:italic;color:var(--rose2)}
+.wh-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:1.4rem}
+.wh-steps{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.5rem}
+.wh-step{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.55)}
+.wh-num{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  background:rgba(191,63,94,.25);border:1px solid rgba(191,63,94,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--rose2);font-weight:600;
+}
+.wh-right{
+  width:180px;flex-shrink:0;
+  padding:2rem 1.5rem;
+  display:flex;flex-direction:column;gap:8px;
+  border-left:1px solid rgba(255,255,255,.07);
+  position:relative;z-index:1;
+}
+.wh-stat{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;padding:.7rem .9rem;
+}
+.wh-sn{font-family:'Playfair Display',serif;font-size:22px;color:#fff;line-height:1}
+.wh-sl{font-size:10px;color:rgba(255,255,255,.32);margin-top:3px;letter-spacing:.3px}
+
+/* story strip */
+.story-lbl{padding:0 2rem .6rem;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);display:flex;align-items:center;justify-content:space-between}
+.story-strip{display:flex;gap:13px;overflow-x:auto;padding:0 2rem 1.2rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.story-strip::-webkit-scrollbar{height:3px}
+.story-strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.story-kard{
+  flex:0 0 260px;scroll-snap-align:start;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;transition:all .25s;cursor:pointer;
+}
+.story-kard:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.09)}
+.sk-img{height:130px;overflow:hidden;position:relative}
+.sk-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.story-kard:hover .sk-img img{transform:scale(1.04)}
+.sk-badge{position:absolute;top:8px;left:8px;background:rgba(13,10,6,.65);backdrop-filter:blur(5px);color:#fff;font-size:9px;padding:3px 8px;border-radius:50px;letter-spacing:1px}
+.sk-body{padding:1rem}
+.sk-res{font-size:11px;color:var(--sage);display:flex;align-items:center;gap:4px;margin-bottom:6px;font-weight:500}
+.sk-qt{font-size:12px;color:var(--ink2);line-height:1.65;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sk-who{display:flex;align-items:center;gap:7px}
+.sk-av{width:26px;height:26px;border-radius:50%;overflow:hidden;background:var(--rose-bg);border:1px solid var(--rose-glow);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.sk-av img{width:100%;height:100%;object-fit:cover}
+.sk-nm{font-size:11px;font-weight:500;color:var(--ink)}
+.sk-loc{font-size:10px;color:var(--muted2)}
+
+/* ═══════════════════════════════
+   PANEL 2 — 帮助她
+   ═══════════════════════════════ */
+.help-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:0 2rem 1.4rem}
+.hs-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;transition:all .2s;cursor:default}
+.hs-card:hover{border-color:var(--rose-glow);background:var(--rose-bg)}
+.hs-ico{font-size:22px;margin-bottom:5px}
+.hs-lbl{font-size:11px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.hs-n{font-family:'Playfair Display',serif;font-size:20px;color:var(--rose)}
+
+/* ═══════════════════════════════
+   PANEL 3 — PASS IT ON
+   ═══════════════════════════════ */
+.pio-bar{
+  margin:0 2rem 1.6rem;
+  background:linear-gradient(135deg,var(--dark2),#260e18);
+  border-radius:16px;padding:1.6rem 1.8rem;
+  display:flex;align-items:center;gap:1.8rem;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+}
+.pio-bar::before{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(191,63,94,.15),transparent 65%);
+}
+.pb-left{flex:1;min-width:180px;position:relative;z-index:1}
+.pb-ttl{font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:4px}
+.pb-ttl em{font-style:italic;color:var(--rose2)}
+.pb-sub{font-size:11px;color:rgba(255,255,255,.38);line-height:1.7}
+.pb-cnts{display:flex;gap:.9rem;position:relative;z-index:1}
+.pb-c{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:.8rem 1rem;text-align:center;min-width:78px;
+}
+.pb-n{font-family:'Playfair Display',serif;font-size:22px;color:#fff;line-height:1}
+.pb-n span{font-size:12px;color:rgba(255,255,255,.3);font-family:'Noto Sans SC',sans-serif}
+.pb-l{font-size:10px;color:rgba(255,255,255,.28);margin-top:2px;letter-spacing:.3px}
+.pb-prg{flex:1;min-width:140px;position:relative;z-index:1}
+.pb-pl{font-size:10px;color:rgba(255,255,255,.32);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.pb-track{height:4px;background:rgba(255,255,255,.09);border-radius:2px;margin-bottom:5px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--rose2));border-radius:2px;transition:width .6s}
+.pb-info{font-size:10px;color:rgba(255,255,255,.28)}
+
+.pio-kard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;transition:all .25s;
+  display:flex;flex-direction:column;
+}
+.pio-kard:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.09)}
+.pk-img{height:95px;overflow:hidden;position:relative}
+.pk-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.pio-kard:hover .pk-img img{transform:scale(1.05)}
+.pk-grad{position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(13,10,6,.55))}
+.pk-body{padding:1.1rem;flex:1;display:flex;flex-direction:column;gap:9px}
+.pk-who{display:flex;align-items:center;gap:9px}
+.pk-av{
+  width:40px;height:40px;border-radius:50%;overflow:hidden;
+  background:var(--sage-bg);border:2px solid var(--sage-glow);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.pk-av img{width:100%;height:100%;object-fit:cover}
+.pk-nm{font-size:13px;font-weight:500;color:var(--ink)}
+.pk-vbadge{display:inline-flex;align-items:center;gap:3px;font-size:9px;color:var(--sage);background:var(--sage-bg);border:1px solid rgba(36,115,80,.2);padding:1px 7px;border-radius:50px;margin-left:5px}
+.pk-role{font-size:11px;color:var(--muted)}
+.pk-offers-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)}
+.pk-tags{display:flex;flex-wrap:wrap;gap:5px}
+.pk-tag{font-size:11px;padding:3px 9px;border-radius:50px;background:var(--surface);border:1px solid var(--border);color:var(--ink2)}
+.pk-story{font-size:12px;color:var(--muted);line-height:1.7;padding:7px 9px;background:var(--surface);border-radius:7px}
+.pk-story strong{color:var(--ink);font-weight:500}
+.pk-ft{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border2);margin-top:auto}
+.slots{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--muted2)}
+.slot{width:7px;height:7px;border-radius:50%}
+.slot.o{background:var(--sage)}
+.slot.t{background:rgba(191,63,94,.35);border:1px solid rgba(191,63,94,.3)}
+
+/* ═══════════════════════════════
+   PANEL 4 — 燃料库
+   ═══════════════════════════════ */
+.lib-layout{display:flex;min-height:calc(100vh - var(--TH))}
+.lib-nav{
+  width:195px;flex-shrink:0;border-right:1px solid var(--border);
+  padding:1.4rem 0;
+  position:sticky;top:0;height:fit-content;
+  max-height:calc(100vh - var(--TH));overflow-y:auto;
+}
+.lib-nav::-webkit-scrollbar{width:3px}
+.lib-nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:1px}
+.ln-sec{margin-bottom:1.3rem;padding:0 1rem}
+.ln-ttl{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:7px;padding:0 2px}
+.ln-it{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;border-radius:8px;cursor:pointer;
+  transition:all .18s;font-size:12px;color:var(--muted);margin-bottom:1px;
+}
+.ln-it:hover{background:var(--surface);color:var(--ink)}
+.ln-it.on{background:var(--rose-bg);color:var(--rose);font-weight:500}
+.ln-cnt{margin-left:auto;font-size:10px;background:var(--border2);padding:1px 6px;border-radius:50px;color:var(--muted2)}
+.lib-main{flex:1;padding:1.5rem 1.8rem 2.5rem;min-width:0}
+.lib-toolbar{display:flex;gap:9px;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
+.lib-search{
+  flex:1;min-width:180px;display:flex;align-items:center;gap:7px;
+  border:1px solid var(--border);border-radius:50px;
+  padding:7px 14px;background:var(--card);transition:all .2s;
+}
+.lib-search:focus-within{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-bg)}
+.lib-search input{border:none;background:transparent;font-size:12px;color:var(--ink);font-family:'Noto Sans SC',sans-serif;outline:none;flex:1}
+.lib-sort{padding:7px 13px;border:1px solid var(--border);border-radius:50px;font-size:12px;background:var(--card);color:var(--muted);font-family:'Noto Sans SC',sans-serif;outline:none;cursor:pointer}
+.lk{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:11px;overflow:hidden;transition:all .2s;cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.lk:hover{border-color:var(--rose-glow);box-shadow:0 4px 18px rgba(0,0,0,.07);transform:translateY(-1px)}
+.lk-img{height:80px;overflow:hidden;background:linear-gradient(135deg,#f0e8de,#e0d4c8)}
+.lk-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.lk:hover .lk-img img{transform:scale(1.05)}
+.lk-body{padding:.9rem;flex:1;display:flex;flex-direction:column;gap:6px}
+.lk-top{display:flex;justify-content:space-between;align-items:center}
+.lk-ty{font-size:10px;padding:2px 7px;border-radius:50px}
+.lt-pdf{background:var(--rose-bg);color:var(--rose)}
+.lt-vid{background:var(--sage-bg);color:var(--sage)}
+.lt-tpl{background:var(--gold-bg);color:var(--gold)}
+.lt-gd{background:var(--surface);color:var(--muted)}
+.lk-free{font-size:10px;color:var(--sage)}
+.lk-paid{font-size:10px;color:var(--amber)}
+.lk-ttl{font-size:12px;font-weight:500;color:var(--ink);line-height:1.45}
+.lk-desc{font-size:11px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lk-ft{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px;border-top:1px solid var(--border2)}
+.lk-st{font-size:10px;color:var(--muted2);display:flex;gap:6px}
+.lk-btn{font-size:10px;padding:3px 10px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.lk-btn:hover{border-color:var(--rose);color:var(--rose)}
+.lib-cta{
+  margin-top:1.3rem;padding:1.1rem 1.4rem;
+  border:1.5px dashed rgba(191,63,94,.22);border-radius:11px;
+  background:var(--rose-bg);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.lct h4{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.lct p{font-size:11px;color:var(--muted)}
+
+/* ─── MODAL ─── */
+.ov{display:none;position:fixed;inset:0;background:rgba(13,10,6,.45);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(5px);overflow-y:auto;padding:1.5rem}
+.ov.open{display:flex}
+.modal{background:var(--card);border-radius:18px;width:100%;max-width:520px;margin:auto;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.18);animation:popIn .25s ease}
+.mhd{padding:1.6rem 1.8rem 1.1rem;background:linear-gradient(135deg,#fff3f5,#fff);border-bottom:1px solid var(--border)}
+.mhd h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--ink);margin-bottom:3px}
+.mhd p{font-size:12px;color:var(--muted)}
+.mbd{padding:1.4rem 1.8rem}
+.mft{display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.8rem;border-top:1px solid var(--border)}
+.fld{margin-bottom:1rem}
+.fld label{display:block;font-size:11px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
+.fld input,.fld textarea,.fld select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--ink);font-size:13px;font-family:'Noto Sans SC',sans-serif;outline:none;transition:border .2s,box-shadow .2s}
+.fld textarea{min-height:72px;resize:vertical;line-height:1.7}
+.fld input:focus,.fld textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-bg)}
+.dg8{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.dg5{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.db{padding:8px 3px;border:1px solid var(--border);border-radius:7px;background:#fff;font-size:11px;color:var(--muted);cursor:pointer;text-align:center;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.db.on{border-color:var(--rose);background:var(--rose-bg);color:var(--rose);font-weight:500}
+.safe-note{display:flex;align-items:flex-start;gap:8px;background:var(--sage-bg);border:1px solid rgba(36,115,80,.18);border-radius:9px;padding:9px 12px;margin-bottom:1rem;font-size:12px;color:#1a5c3a;line-height:1.65}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.8rem;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:50px;font-size:12px;font-family:'Noto Sans SC',sans-serif;z-index:500;box-shadow:0 8px 28px rgba(0,0,0,.16);animation:fadeUp .28s ease;pointer-events:none;white-space:nowrap}
+.toast.dark{background:var(--dark);color:#fff}
+.toast.err{background:var(--rose);color:#fff}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:760px){
+  :root{--TH:52px;--SW:0px}
+  html,body{overflow:hidden}
+  .topbar{padding:0 .75rem}
+  .tb-brand{width:auto;border-right:none;margin-right:.65rem}
+  .brand-pill{font-size:12px;padding:4px 9px}
+  .tb-mid{padding:0;gap:.5rem;min-width:0}
+  .tb-hello{font-size:12px;white-space:nowrap}
+  .tb-search{display:none}
+  .tb-right{margin-left:auto;gap:5px}
+  .quota-chip{display:none}
+  .user-name,.logout-btn{display:none}
+  .notif-btn{width:30px;height:30px}
+  .nd{top:calc(var(--TH) + 6px);right:.65rem;left:.65rem;width:auto}
+
+  .sidebar{
+    top:auto;left:0;right:0;bottom:0;width:100%;height:62px;
+    flex-direction:row;justify-content:space-around;padding:6px 8px;
+    border-right:none;border-top:1px solid var(--border);gap:0;
+  }
+  .sn{width:48px;height:48px;flex-direction:column;font-size:18px;gap:2px}
+  .sn .tt{position:static;transform:none;opacity:1;background:none;color:var(--muted);padding:0;font-size:9px}
+  .sn.on .tt{color:var(--rose)}
+  .s-div,.s-bot{display:none}
+  .main{left:0;top:var(--TH);bottom:62px}
+  .pnl{min-height:calc(100vh - var(--TH) - 62px)}
+
+  .sec-hd{padding:1.3rem 1rem .85rem;align-items:flex-start}
+  .sec-ttl{font-size:25px}
+  .sec-sub{font-size:12px}
+  .chips{padding:0 1rem .8rem;flex-wrap:nowrap;overflow-x:auto}
+  .chip{white-space:nowrap}
+  .g3,.g4{grid-template-columns:1fr;padding-left:1rem;padding-right:1rem}
+  .wish-hero{margin:0 1rem 1.2rem;display:block}
+  .wh-left{padding:1.5rem}
+  .wh-right{width:auto;border-left:none;border-top:1px solid rgba(255,255,255,.07);padding:1rem 1.5rem;display:grid;grid-template-columns:repeat(3,1fr)}
+  .story-lbl{padding-left:1rem;padding-right:1rem}
+  .story-strip{padding-left:1rem;padding-right:1rem}
+  .story-kard{flex-basis:82vw;max-width:300px}
+  .help-stats{margin-left:1rem;margin-right:1rem;grid-template-columns:repeat(2,1fr)}
+  .pio-bar{margin:0 1rem 1.2rem;padding:1.3rem}
+  .pb-cnts{width:100%;justify-content:space-between}
+  .pb-c{flex:1;min-width:0;padding:.7rem .4rem}
+  .pb-prg{min-width:100%}
+
+  .lib-layout{display:block;min-height:auto}
+  .lib-nav{width:100%;max-height:none;position:static;border-right:none;border-bottom:1px solid var(--border);padding:.75rem 0;display:flex;overflow-x:auto}
+  .ln-sec{display:flex;align-items:center;gap:5px;margin:0;padding:0 .75rem;flex-shrink:0}
+  .ln-ttl{display:none}
+  .ln-it{white-space:nowrap;margin:0;padding:7px 10px}
+  .ln-cnt{margin-left:3px}
+  .lib-main{padding:1rem 1rem 2rem}
+  .lib-search{min-width:100%}
+  .lib-sort{flex:1}
+  .lib-cta{align-items:flex-start}
+
+  .ov{padding:.6rem;align-items:flex-end}
+  .modal{max-height:92vh;overflow-y:auto;border-radius:18px 18px 8px 8px}
+  .mhd{padding:1.2rem 1.1rem .9rem}
+  .mbd{padding:1rem 1.1rem}
+  .mft{position:sticky;bottom:0;background:var(--card);padding:.9rem 1.1rem}
+  .dg8{grid-template-columns:repeat(2,1fr)}
+  .dg5{grid-template-columns:repeat(2,1fr)}
+  .toast{bottom:76px;max-width:calc(100vw - 2rem);white-space:normal;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-brand"><div class="brand-pill">PIO</div></div>
+  <div class="tb-mid">
+    <div class="tb-hello">你好，<strong>林 晚</strong> 🌸</div>
+    <div class="tb-search">
+      <span style="font-size:12px;color:var(--muted2)">🔍</span>
+      <input type="text" placeholder="搜索愿望、姐妹、资料…"/>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="quota-chip" id="quotaChip">⚡ 今日剩余 <strong>1</strong> 次帮助</div>
+    <div class="notif-btn" onclick="toggleND()" id="nbtn">🔔<div class="notif-pip" id="npip"></div></div>
+    <div class="user-btn">
+      <div class="user-av"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80" alt="user"/></div>
+      <span class="user-name">林 晚</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</div>
+
+<!-- NOTIF DROPDOWN -->
+<div class="nd" id="nd">
+  <div class="nd-hd"><h4>通知 <span style="font-size:10px;background:var(--rose);color:#fff;padding:1px 6px;border-radius:50px;margin-left:5px">2</span></h4><button class="nd-clr" onclick="clearND()">全部已读</button></div>
+  <div class="nd-it"><div class="nd-dot"></div><div><div class="nd-tx"><strong>陈 意</strong> 接受了你的连接请求，可以开始聊了！</div><div class="nd-tm">10分钟前</div></div></div>
+  <div class="nd-it"><div class="nd-dot"></div><div><div class="nd-tx">你的愿望收到新支持 <strong>¥500</strong>（匿名姐妹）</div><div class="nd-tm">1小时前</div></div></div>
+  <div class="nd-it"><div class="nd-dot r"></div><div><div class="nd-tx">燃料库新增「英国G5申请攻略2024」，你可能感兴趣</div><div class="nd-tm">昨天</div></div></div>
+  <div class="nd-it"><div class="nd-dot r"></div><div><div class="nd-tx">本周互助名额已使用 2/3，还剩 1 次</div><div class="nd-tm">3天前</div></div></div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sn on" onclick="go('wish')"><img class="sn-img dreamer-icon" src="assets/arcticons--dreamer.svg" alt=""/><div class="tt">发愿板</div></div>
+  <div class="sn" onclick="go('help')"><img class="sn-img hope-icon" src="assets/mdi--hope.svg" alt=""/><div class="tt">帮助她</div></div>
+  <div class="sn" onclick="go('pio')"><img class="sn-img pass-icon" src="assets/streamline-ultimate--human-resources-rating-woman.svg" alt=""/><div class="tt">Pass It On</div></div>
+  <div class="sn" onclick="go('fuel')"><img class="sn-img data-icon" src="assets/lsicon--data-outline.svg" alt=""/><div class="tt">燃料库</div></div>
+  <div class="s-div"></div>
+  <div class="sn" onclick="go('me')"><span class="profile-icon" aria-hidden="true"></span><div class="tt">我的</div></div>
+  <div class="s-bot">
+    <div class="s-div"></div>
+    <div class="sn" style="margin-top:4px">⚙️<div class="tt">设置</div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainScroll">
+
+<!-- ════════════════════════
+     PANEL 1 · 发愿板
+════════════════════════ -->
+<div class="pnl on" id="p-wish">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-lbl">Wish Board</div>
+      <h1 class="sec-ttl">发愿板 <em>·</em> 说出你想要的</h1>
+      <p class="sec-sub">把你的目标说出来，让姐妹们看见你需要什么</p>
+    </div>
+    <button class="btn-r" onclick="openOv('ov-wish')">✍️ 发布我的愿</button>
+  </div>
+
+  <!-- GUIDE HERO -->
+  <div class="wish-hero">
+    <div class="wh-glow"></div><div class="wh-glow2"></div>
+    <div class="wh-left">
+      <div class="wh-eyebrow">如何发一个好愿 · 四步指引</div>
+      <div class="wh-ttl">把目标说清楚，<em>让帮助找到你</em></div>
+      <div class="wh-sub">发愿不是乞讨，是清晰表达你的计划——越具体，越容易获得精准帮助</div>
+      <div class="wh-steps">
+        <div class="wh-step"><div class="wh-num">1</div><span>说清你是谁：背景、经历、梦想从哪里来</span></div>
+        <div class="wh-step"><div class="wh-num">2</div><span>说清你要什么：资金/信息/人脉，具体到数字</span></div>
+        <div class="wh-step"><div class="wh-num">3</div><span>说清你的计划：拿到帮助后怎么用、时间线</span></div>
+        <div class="wh-step"><div class="wh-num">4</div><span>承诺传递：目标达成后，你将如何帮助下一位</span></div>
+      </div>
+      <button class="btn-r" onclick="openOv('ov-wish')">立即发布 →</button>
+    </div>
+    <div class="wh-right">
+      <div class="wh-stat"><div class="wh-sn">312</div><div class="wh-sl">进行中的愿</div></div>
+      <div class="wh-stat"><div class="wh-sn">89</div><div class="wh-sl">本月已实现</div></div>
+      <div class="wh-stat" style="background:rgba(36,115,80,.15);border-color:rgba(36,115,80,.25)"><div class="wh-sn" style="color:#5de0a0">¥28w+</div><div class="wh-sl">累计支持金额</div></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS STORIES -->
+  <div class="story-lbl"><span>✦ 已实现的愿 · 她们做到了</span><button class="btn-o" style="font-size:11px;padding:4px 12px">查看全部</button></div>
+  <div class="story-strip">
+    <div class="story-kard">
+      <div class="sk-img"><img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80" alt="纪录片拍摄现场"/><div class="sk-badge">✦ 已实现</div></div>
+      <div class="sk-body">
+        <div class="sk-res">✓ 女性题材纪录片入围青年影展</div>
+        <div class="sk-qt">「姐妹们借给我设备，也帮我找到三位采访对象。影片完成后，我把拍摄预算表和申报指南全部放进了资料池。」</div>
+        <div class="sk-who"><div class="sk-av"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&q=80" alt="周岚的头像"/></div><div><div class="sk-nm">周 岚</div><div class="sk-loc">武汉 · 独立导演</div></div></div>
+      </div>
+    </div>
+    <div class="story-kard">
+      <div class="sk-img"><img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400&q=80" alt="咖啡品牌门店"/><div class="sk-badge">✦ 已实现</div></div>
+      <div class="sk-body">
+        <div class="sk-res">✓ 县城咖啡品牌进入 22 家门店</div>
+        <div class="sk-qt">「最难的不是产品，是第一次走进渠道。圈里的零售从业者陪我改了四版方案，现在我把供应商清单开放给新创业者。」</div>
+        <div class="sk-who"><div class="sk-av"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=60&q=80" alt="苏禾的头像"/></div><div><div class="sk-nm">苏 禾</div><div class="sk-loc">云南保山 · 品牌创始人</div></div></div>
+      </div>
+    </div>
+    <div class="story-kard">
+      <div class="sk-img"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&q=80" alt="科技产品开发"/><div class="sk-badge">✦ 已实现</div></div>
+      <div class="sk-body">
+        <div class="sk-res">✓ 无障碍导航项目获得天使轮投资</div>
+        <div class="sk-qt">「产品原型、法务和第一次路演都有人接力帮我。融资完成后，我发起了女性科技创业者的每月开放答疑。」</div>
+        <div class="sk-who"><div class="sk-av"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&q=80" alt="孟乔的头像"/></div><div><div class="sk-nm">孟 乔</div><div class="sk-loc">深圳 · 产品创业者</div></div></div>
+      </div>
+    </div>
+    <div class="story-kard">
+      <div class="sk-img"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400&q=80" alt="陶艺工作室"/><div class="sk-badge">✦ 已实现</div></div>
+      <div class="sk-body">
+        <div class="sk-res">✓ 在景德镇建立个人陶艺工作室</div>
+        <div class="sk-qt">「第一台窑炉由 46 位姐妹共同预订作品支持。工作室稳定后，我每季度拿出两个免费驻留名额给年轻女性创作者。」</div>
+        <div class="sk-who"><div class="sk-av"><img src="https://images.unsplash.com/photo-1548142813-c348350df52b?w=60&q=80" alt="许言的头像"/></div><div><div class="sk-nm">许 言</div><div class="sk-loc">景德镇 · 陶艺创作者</div></div></div>
+      </div>
+    </div>
+    <div class="story-kard">
+      <div class="sk-img"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&q=80" alt="社区书店"/><div class="sk-badge">✦ 已实现</div></div>
+      <div class="sk-body">
+        <div class="sk-res">✓ 社区书店实现首年盈亏平衡</div>
+        <div class="sk-qt">「大家帮我做选址测算、书单和会员方案。现在书店每周提供免费场地，让更多女性发起读书会和职业分享。」</div>
+        <div class="sk-who"><div class="sk-av"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=60&q=80" alt="江沅的头像"/></div><div><div class="sk-nm">江 沅</div><div class="sk-loc">苏州 · 独立书店主理人</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE WISHES -->
+  <div style="padding:1.2rem 2rem .5rem;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted2)">进行中的愿 · Active</span>
+    <button class="btn-o" style="font-size:11px;padding:4px 12px">全部 →</button>
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="fc('wg','data-cat','all',this)">全部</button>
+    <button class="chip" onclick="fc('wg','data-cat','study',this)">🎓 留学</button>
+    <button class="chip" onclick="fc('wg','data-cat','biz',this)">🚀 创业</button>
+    <button class="chip" onclick="fc('wg','data-cat','job',this)">💼 求职</button>
+    <button class="chip" onclick="fc('wg','data-cat','skill',this)">💡 技能</button>
+    <button class="chip" onclick="fc('wg','data-cat','exam',this)">📝 考研考公</button>
+  </div>
+  <div class="g3" id="wg">
+    <div class="kard" data-cat="study">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-rose">🎓 留学</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">想去爱丁堡读城市规划硕士，缺30万学费</div>
+        <div class="kard-txt">三线城市规划局工作三年，已获奖学金覆盖50%，缺口需要姐妹们的帮助。</div>
+        <div class="kard-box need"><strong>需要：</strong>留学资金支持约 ¥30,000，或提供奖学金信息线索</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>免费为3位留学梦姐妹提供申请全程一对一辅导</div>
+        <div class="prog"><div class="prog-f" style="width:38%"></div></div>
+        <div class="prog-mt"><span>已支持 ¥11,400</span><span>目标 ¥30,000</span></div>
+        <div class="kard-ft">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&q=80" alt=""/></div><div><div class="mini-nm">林 晚</div><div class="mini-loc">山西太原</div></div></div>
+          <button class="btn-sm" onclick="openSup('林 晚','留学资金支持')">支持她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-cat="biz">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-rose">🚀 创业</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">可持续时装品牌，需要天使用户和供应链对接</div>
+        <div class="kard-txt">五年服装设计师，第一批100件预购中，还差39件。每件¥298，可持续环保材料。</div>
+        <div class="kard-box need"><strong>需要：</strong>预购支持 · 可持续面料供应链人脉对接</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>Mentor 3位独立品牌姐妹，开放供应链资源</div>
+        <div class="prog"><div class="prog-f" style="width:61%"></div></div>
+        <div class="prog-mt"><span>已预购 61 件</span><span>目标 100 件</span></div>
+        <div class="kard-ft">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1492681290082-e932832941e6?w=60&q=80" alt=""/></div><div><div class="mini-nm">陈 意</div><div class="mini-loc">上海</div></div></div>
+          <button class="btn-sm" onclick="openSup('陈 意','预购支持')">支持她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-cat="job">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-sage">💼 求职</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">想进四大做审计，缺一个内推机会</div>
+        <div class="kard-txt">二本会计，CPA三科，GPA 3.8，投了数十份简历无回音，需要内推突破筛选。</div>
+        <div class="kard-box need"><strong>需要：</strong>德勤/安永/普华/毕马威内推码 或 简历修改</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>入职后为5位同等背景应届生提供内推和面试辅导</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&q=80" alt=""/></div><div><div class="mini-nm">赵 小云</div><div class="mini-loc">成都</div></div></div>
+          <button class="btn-sm" onclick="openSup('赵 小云','内推机会')">连接她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-cat="skill">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-sky">💡 技能</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">数据分析转行中，需要Mentor每月2次指导</div>
+        <div class="kard-txt">行政转行，自学Python三个月，需要有人确认学习路径并指点如何拿到第一份数据岗。</div>
+        <div class="kard-box need"><strong>需要：</strong>数据分析从业者 · 每月1-2次答疑 · 持续3个月</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>入行后为下一位转行姐妹做同样的事，传递下去</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=60&q=80" alt=""/></div><div><div class="mini-nm">吴 芃</div><div class="mini-loc">杭州</div></div></div>
+          <button class="btn-sm" onclick="openSup('吴 芃','Mentor指导')">连接她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-cat="exam">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-gold">📝 考研</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">考研复试在北京，缺住宿费800元</div>
+        <div class="kard-txt">农村应届生，一战上岸，复试在北京，两周住宿是实在的难题。</div>
+        <div class="kard-box need"><strong>需要：</strong>北京住宿费约 ¥800，直接转账本人账户</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>整理考研完整笔记放入燃料库，资助下一位</div>
+        <div class="prog"><div class="prog-f" style="width:70%"></div></div>
+        <div class="prog-mt"><span>已支持 ¥560</span><span>目标 ¥800</span></div>
+        <div class="kard-ft">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=60&q=80" alt=""/></div><div><div class="mini-nm">刘 云</div><div class="mini-loc">河南</div></div></div>
+          <button class="btn-sm" onclick="openSup('刘 云','住宿费')">直接支持 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-cat="biz">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1555952517-2e8e729e0b44?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-rose">🚀 创业</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">女性健康App，寻找iOS/Android技术联创</div>
+        <div class="kard-txt">产品方案完整，已有天使轮意向，缺技术合伙人，愿意股权合作。</div>
+        <div class="kard-box need"><strong>需要：</strong>iOS/Android开发背景 · 技术联合创始人 · 股权合作</div>
+        <div class="kard-box pledge"><strong>实现后：</strong>帮助其他有想法的女性做产品规划和创业指导</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av">🏥</div><div><div class="mini-nm">李 然</div><div class="mini-loc">深圳</div></div></div>
+          <button class="btn-sm" onclick="openSup('李 然','技术联创')">连接她 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════
+     PANEL 2 · 帮助她
+════════════════════════ -->
+<div class="pnl" id="p-help">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-lbl">Help Her</div>
+      <h1 class="sec-ttl">帮助她 <em>·</em> 你的资源是她的钥匙</h1>
+      <p class="sec-sub">浏览所有愿望清单，找到你能帮到的那一位姐妹</p>
+    </div>
+  </div>
+  <div class="help-stats">
+    <div class="hs-card"><div class="hs-ico">💰</div><div class="hs-lbl">筹集资金</div><div class="hs-n">84</div></div>
+    <div class="hs-card"><div class="hs-ico">🏪</div><div class="hs-lbl">库存销货</div><div class="hs-n">29</div></div>
+    <div class="hs-card"><div class="hs-ico">💼</div><div class="hs-lbl">就业机会</div><div class="hs-n">41</div></div>
+    <div class="hs-card"><div class="hs-ico">🔗</div><div class="hs-lbl">创业资源</div><div class="hs-n">103</div></div>
+    <div class="hs-card"><div class="hs-ico">📋</div><div class="hs-lbl">信息对接</div><div class="hs-n">67</div></div>
+    <div class="hs-card"><div class="hs-ico">🎯</div><div class="hs-lbl">Mentor</div><div class="hs-n">58</div></div>
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="fc('hg','data-hc','all',this)">全部</button>
+    <button class="chip" onclick="fc('hg','data-hc','money',this)">💰 资金</button>
+    <button class="chip" onclick="fc('hg','data-hc','stock',this)">🏪 库存/销货</button>
+    <button class="chip" onclick="fc('hg','data-hc','job',this)">💼 就业机会</button>
+    <button class="chip" onclick="fc('hg','data-hc','biz',this)">🔗 创业资源</button>
+    <button class="chip" onclick="fc('hg','data-hc','mentor',this)">🎯 Mentor</button>
+    <button class="chip" onclick="fc('hg','data-hc','info',this)">📋 信息</button>
+  </div>
+  <div class="g3" id="hg">
+    <div class="kard" data-hc="money">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-gold">📝 考研 · 资金</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">考研复试住宿费¥800，紧急</div>
+        <div class="kard-txt">一战上岸，复试在北京，家里实在拿不出来。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>北京住宿费 ¥800，直接转账本人账户</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>整理完整考研笔记，资助下一位同等情况的姐妹</div>
+        <div class="prog"><div class="prog-f" style="width:70%"></div></div>
+        <div class="prog-mt"><span>已支持 ¥560</span><span>目标 ¥800</span></div>
+        <div class="kard-ft">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=60&q=80" alt=""/></div><div><div class="mini-nm">刘 云</div><div class="mini-loc">河南 · 应届生</div></div></div>
+          <button class="btn-sm" onclick="openSup('刘 云','住宿费¥800')">直接支持 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-hc="stock">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-rose">🏪 库存压力</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">可持续手工服装第一批，还差39件预购</div>
+        <div class="kard-txt">每件¥298，可持续环保材料，独立设计，帮消化库存压力完成量产。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>预购39件（¥298/件），帮助完成首批量产</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>Mentor 3位独立品牌姐妹，开放供应链资源</div>
+        <div class="prog"><div class="prog-f" style="width:61%"></div></div>
+        <div class="prog-mt"><span>已预购 61 件</span><span>目标 100 件</span></div>
+        <div class="kard-ft">
+          <div class="mini-user"><div class="mini-av"><img src="https://images.unsplash.com/photo-1492681290082-e932832941e6?w=60&q=80" alt=""/></div><div><div class="mini-nm">陈 意</div><div class="mini-loc">上海 · 品牌主理人</div></div></div>
+          <button class="btn-sm" onclick="openSup('陈 意','预购支持')">预购支持 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-hc="job">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-sage">💼 就业机会</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">互联网产品/运营岗位，寻BAT/字节内推</div>
+        <div class="kard-txt">985毕业，两段实习，简历质量不错但缺突破筛选的渠道。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>腾讯/网易/字节产品·运营岗内推码</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>入职6个月后为3位在校生提供内推和全程辅导</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av">📱</div><div><div class="mini-nm">周 敏</div><div class="mini-loc">上海 · 应届生</div></div></div>
+          <button class="btn-sm" onclick="openSup('周 敏','内推机会')">提供内推 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-hc="biz">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-rose">🔗 创业资源</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">女性健康App，寻iOS/Android技术联合创始人</div>
+        <div class="kard-txt">产品方案完整，已有天使轮意向，愿意股权合作。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>iOS/Android开发 · 技术CTO · 股权合作</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>帮助其他有想法的女性做产品规划和创业指导</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av">🏥</div><div><div class="mini-nm">李 然</div><div class="mini-loc">深圳 · 产品经理</div></div></div>
+          <button class="btn-sm" onclick="openSup('李 然','技术联创')">连接她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-hc="mentor">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-sky">🎯 Mentor · UI设计</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">自学Figma 3个月，需要作品集Review</div>
+        <div class="kard-txt">零基础自学UI，想找第一份实习，需要有人评估作品集水平。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>UI/UX设计师 · 1次作品集点评 · 30-60分钟</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>入行后持续为新人提供免费作品集点评</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av">🎨</div><div><div class="mini-nm">张 月</div><div class="mini-loc">武汉 · 转行中</div></div></div>
+          <button class="btn-sm" onclick="openSup('张 月','作品集Review')">帮助她 →</button>
+        </div>
+      </div>
+    </div>
+    <div class="kard" data-hc="info">
+      <div class="kard-img"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=75" alt=""/><div class="kard-img-grad"></div><div class="kard-img-tag"><span class="tag t-amber">🌍 海外 · 信息</span></div></div>
+      <div class="kard-body">
+        <div class="kard-ttl">澳大利亚打工度假签，需要真实经验分享</div>
+        <div class="kard-txt">想申请WHV，网上信息太杂，需要有实际经历的姐妹来聊聊。</div>
+        <div class="kard-box need"><strong>具体需要：</strong>WHV经历 · 安全须知 · 生活成本 · 1次视频通话</div>
+        <div class="kard-box pledge"><strong>实现后承诺：</strong>整理WHV完整指南上传燃料库，免费供大家下载</div>
+        <div class="kard-ft" style="margin-top:10px">
+          <div class="mini-user"><div class="mini-av">✈️</div><div><div class="mini-nm">何 晴</div><div class="mini-loc">广州</div></div></div>
+          <button class="btn-sm" onclick="openSup('何 晴','WHV经验')">分享经验 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════
+     PANEL 3 · PASS IT ON
+════════════════════════ -->
+<div class="pnl" id="p-pio">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-lbl">Pass It On · 传下去</div>
+      <h1 class="sec-ttl">她们已实现，<em>准备传递</em></h1>
+      <p class="sec-sub">这些姐妹完成了目标，现在兑现承诺——将力量传递给你</p>
+    </div>
+  </div>
+  <div class="pio-bar">
+    <div class="pio-bar::before"></div>
+    <div class="pb-left">
+      <div class="pb-ttl">今天还可以接受 <em id="remT">1</em> 次帮助</div>
+      <div class="pb-sub">每天上限 2 次 · 每周上限 3 次<br>每天0点 / 每周一0点 自动重置</div>
+    </div>
+    <div class="pb-cnts">
+      <div class="pb-c"><div class="pb-n"><span id="tdU">1</span><span>/2</span></div><div class="pb-l">今日已用</div></div>
+      <div class="pb-c"><div class="pb-n"><span id="wkU">2</span><span>/3</span></div><div class="pb-l">本周已用</div></div>
+    </div>
+    <div class="pb-prg">
+      <div class="pb-pl">本周进度</div>
+      <div class="pb-track"><div class="pb-fill" id="wkFill" style="width:66%"></div></div>
+      <div class="pb-info" id="wkInfo">已接受 2/3 次 · 周日0点重置</div>
+    </div>
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="fc('pg','data-pc','all',this)">全部</button>
+    <button class="chip" onclick="fc('pg','data-pc','study',this)">🎓 留学经验</button>
+    <button class="chip" onclick="fc('pg','data-pc','job',this)">💼 求职内推</button>
+    <button class="chip" onclick="fc('pg','data-pc','biz',this)">🚀 创业资源</button>
+    <button class="chip" onclick="fc('pg','data-pc','skill',this)">💡 技能Mentor</button>
+  </div>
+  <div class="g3" id="pg">
+    <div class="pio-kard" data-pc="study">
+      <div class="pk-img"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=75" alt="london"/><div class="pk-grad"></div></div>
+      <div class="pk-body">
+        <div class="pk-who"><div class="pk-av"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80" alt=""/></div><div><div class="pk-nm">林 晚 <span class="pk-vbadge">✓ 已核验</span></div><div class="pk-role">UCL城市规划在读 · 伦敦</div></div></div>
+        <div class="pk-offers-lbl">可以提供</div>
+        <div class="pk-tags"><span class="pk-tag">🇬🇧 英国留学申请全程</span><span class="pk-tag">文书润色</span><span class="pk-tag">面试prep</span><span class="pk-tag">UCL校园答疑</span></div>
+        <div class="pk-story"><strong>她的承诺：</strong>PIO姐妹帮我凑够了留学经费，我承诺帮助3位有留学梦的姐妹，从选校到录取全程陪伴。</div>
+        <div class="pk-ft"><div class="slots"><div class="slot t"></div><div class="slot o"></div><div class="slot o"></div><span style="margin-left:5px">还有 2 个名额</span></div><button class="btn-sm sage" onclick="accept(this,'林 晚')">接受帮助 →</button></div>
+      </div>
+    </div>
+    <div class="pio-kard" data-pc="job">
+      <div class="pk-img"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=500&q=75" alt="pwc"/><div class="pk-grad"></div></div>
+      <div class="pk-body">
+        <div class="pk-who"><div class="pk-av"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80" alt=""/></div><div><div class="pk-nm">赵 小云 <span class="pk-vbadge">✓ 已核验</span></div><div class="pk-role">普华永道审计 · 上海</div></div></div>
+        <div class="pk-offers-lbl">可以提供</div>
+        <div class="pk-tags"><span class="pk-tag">🏢 四大内推码</span><span class="pk-tag">简历修改</span><span class="pk-tag">面试全套备考</span><span class="pk-tag">网申技巧</span></div>
+        <div class="pk-story"><strong>她的承诺：</strong>二本靠内推进了普华，承诺帮5位同等情况的应届生，内推+简历+面试辅导全套。</div>
+        <div class="pk-ft"><div class="slots"><div class="slot t"></div><div class="slot t"></div><div class="slot o"></div><div class="slot o"></div><div class="slot o"></div><span style="margin-left:5px">还有 3 个名额</span></div><button class="btn-sm sage" onclick="accept(this,'赵 小云')">接受帮助 →</button></div>
+      </div>
+    </div>
+    <div class="pio-kard" data-pc="skill">
+      <div class="pk-img"><img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=500&q=75" alt="data"/><div class="pk-grad"></div></div>
+      <div class="pk-body">
+        <div class="pk-who"><div class="pk-av"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80" alt=""/></div><div><div class="pk-nm">吴 芃 <span class="pk-vbadge">✓ 已核验</span></div><div class="pk-role">字节数据分析师 · 杭州</div></div></div>
+        <div class="pk-offers-lbl">可以提供</div>
+        <div class="pk-tags"><span class="pk-tag">📊 转行路径规划</span><span class="pk-tag">Python指导</span><span class="pk-tag">每月2次答疑</span><span class="pk-tag">字节内推</span></div>
+        <div class="pk-story"><strong>她的承诺：</strong>行政→数据分析花了8个月，现在稳了。承诺帮想转行的姐妹，每月2次答疑持续3个月。</div>
+        <div class="pk-ft"><div class="slots"><div class="slot o"></div><div class="slot o"></div><span style="margin-left:5px">还有 2 个名额</span></div><button class="btn-sm sage" onclick="accept(this,'吴 芃')">接受帮助 →</button></div>
+      </div>
+    </div>
+    <div class="pio-kard" data-pc="biz">
+      <div class="pk-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=75" alt="brand"/><div class="pk-grad"></div></div>
+      <div class="pk-body">
+        <div class="pk-who"><div class="pk-av"><img src="https://images.unsplash.com/photo-1492681290082-e932832941e6?w=80&q=80" alt=""/></div><div><div class="pk-nm">陈 意 <span class="pk-vbadge">✓ 已核验</span></div><div class="pk-role">可持续品牌主理人 · 上海</div></div></div>
+        <div class="pk-offers-lbl">可以提供</div>
+        <div class="pk-tags"><span class="pk-tag">🏭 服装供应链资源</span><span class="pk-tag">独立品牌经验</span><span class="pk-tag">小红书选品</span><span class="pk-tag">首批用户获取</span></div>
+        <div class="pk-story"><strong>她的承诺：</strong>从0到月营收5万+，承诺mentor 3位想做独立品牌的女性设计师，开放供应链资源。</div>
+        <div class="pk-ft"><div class="slots"><div class="slot t"></div><div class="slot o"></div><div class="slot o"></div><span style="margin-left:5px">还有 2 个名额</span></div><button class="btn-sm sage" onclick="accept(this,'陈 意')">接受帮助 →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════
+     PANEL 4 · 燃料库
+════════════════════════ -->
+<div class="pnl" id="p-fuel">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-lbl">Fuel Library · 燃料库</div>
+      <h1 class="sec-ttl">破局，需要 <em>燃料</em></h1>
+      <p class="sec-sub">考研考公、留学申请、英语粤语日语、移民政策——姐妹们整理的最值钱资料</p>
+    </div>
+    <button class="btn-r" onclick="openOv('ov-fuel')">投入燃料 +</button>
+  </div>
+  <div class="lib-layout">
+    <div class="lib-nav">
+      <div class="ln-sec">
+        <div class="ln-ttl">分类</div>
+        <div class="ln-it on" onclick="fl('all',this)"><span>📦</span>全部资料<span class="ln-cnt">54</span></div>
+        <div class="ln-it" onclick="fl('exam',this)"><span>📝</span>考研考公<span class="ln-cnt">14</span></div>
+        <div class="ln-it" onclick="fl('study',this)"><span>🎓</span>留学申请<span class="ln-cnt">11</span></div>
+        <div class="ln-it" onclick="fl('lang',this)"><span>🗣️</span>语言学习<span class="ln-cnt">10</span></div>
+        <div class="ln-it" onclick="fl('job',this)"><span>💼</span>求职面试<span class="ln-cnt">8</span></div>
+        <div class="ln-it" onclick="fl('biz',this)"><span>🚀</span>创业资源<span class="ln-cnt">7</span></div>
+        <div class="ln-it" onclick="fl('immigr',this)"><span>🌍</span>移民政策<span class="ln-cnt">4</span></div>
+      </div>
+      <div class="ln-sec">
+        <div class="ln-ttl">类型</div>
+        <div class="ln-it" onclick="flt('pdf',this)"><span>📄</span>PDF文档</div>
+        <div class="ln-it" onclick="flt('vid',this)"><span>🎬</span>视频课程</div>
+        <div class="ln-it" onclick="flt('tpl',this)"><span>🛠</span>工具模板</div>
+        <div class="ln-it" onclick="flt('gd',this)"><span>📋</span>经验指南</div>
+      </div>
+      <div class="ln-sec">
+        <div class="ln-ttl">价格</div>
+        <div class="ln-it" onclick="flp('free',this)"><span>✦</span>仅看免费</div>
+        <div class="ln-it" onclick="flp('paid',this)"><span>💎</span>付费精选</div>
+      </div>
+    </div>
+    <div class="lib-main">
+      <div class="lib-toolbar">
+        <div class="lib-search"><span style="font-size:12px;color:var(--muted2)">🔍</span><input type="text" placeholder="搜索资料名称、关键词…"/></div>
+        <select class="lib-sort"><option>最新上传</option><option>下载最多</option><option>评分最高</option></select>
+      </div>
+      <div class="g4" id="lg">
+        <div class="lk" data-lc="exam" data-lt="pdf" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-pdf">PDF</span><span class="lk-free">免费</span></div><div class="lk-ttl">2024考研政治核心考点速记手册</div><div class="lk-desc">马原、史纲、思修、时政全覆盖，配合真题使用效果最佳。</div><div class="lk-ft"><div class="lk-st"><span>📄 58页</span><span>↓ 3,204</span><span>★4.9</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="exam" data-lt="gd" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-gd">指南</span><span class="lk-free">免费</span></div><div class="lk-ttl">国考行测120天备考计划表</div><div class="lk-desc">每日任务拆解，数量关系·言语·判断推理专项安排。</div><div class="lk-ft"><div class="lk-st"><span>📋</span><span>↓ 2,876</span><span>★4.8</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="exam" data-lt="gd" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-tpl">模板</span><span class="lk-free">免费</span></div><div class="lk-ttl">公务员申论万能框架模板（20套）</div><div class="lk-desc">经济·生态·民生等高频主题，直接套用，附范文解析。</div><div class="lk-ft"><div class="lk-st"><span>📝 20套</span><span>↓ 4,590</span><span>★4.9</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="exam" data-lt="vid" data-lp="paid"><div class="lk-img"><img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-vid">视频</span><span class="lk-paid">付费</span></div><div class="lk-ttl">法学考研全程班：跨考专用版</div><div class="lk-desc">针对理工科跨考，民法·刑法·法理学核心考点精讲。</div><div class="lk-ft"><div class="lk-st"><span>🎬 80集</span><span>★4.9</span><span style="color:var(--rose)">¥199</span></div><button class="lk-btn">了解</button></div></div></div>
+        <div class="lk" data-lc="study" data-lt="pdf" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-pdf">PDF</span><span class="lk-free">免费</span></div><div class="lk-ttl">英国G5院校申请全攻略 2024版</div><div class="lk-desc">牛津/剑桥/ICL/LSE/UCL时间线、文书技巧，含真实录取案例。</div><div class="lk-ft"><div class="lk-st"><span>📄 42页</span><span>↓ 1,240</span><span>★4.9</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="study" data-lt="tpl" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-tpl">模板</span><span class="lk-free">免费</span></div><div class="lk-ttl">PS/SOP留学文书模板库（20份）</div><div class="lk-desc">20份不同专业，含修改批注，姐妹亲测成功录取。</div><div class="lk-ft"><div class="lk-st"><span>📝 20份</span><span>↓ 892</span><span>★4.8</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="lang" data-lt="vid" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-vid">视频</span><span class="lk-free">免费</span></div><div class="lk-ttl">雅思7分备考全攻略（听说读写）</div><div class="lk-desc">三个月冲7分，真题解析+口语话题库+写作模板。</div><div class="lk-ft"><div class="lk-st"><span>🎬 32集</span><span>↓ 2,108</span><span>★4.9</span></div><button class="lk-btn">观看</button></div></div></div>
+        <div class="lk" data-lc="lang" data-lt="pdf" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1541178735493-479c1a27ed24?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-pdf">PDF</span><span class="lk-free">免费</span></div><div class="lk-ttl">粤语入门到日常会话完整教程</div><div class="lk-desc">300个高频词汇+发音规律+日常对话，附音频二维码。</div><div class="lk-ft"><div class="lk-st"><span>📄 86页</span><span>↓ 1,654</span><span>★4.8</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="lang" data-lt="tpl" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-tpl">工具包</span><span class="lk-free">免费</span></div><div class="lk-ttl">N2日语备考资料包 · 词汇+语法</div><div class="lk-desc">JLPT N2高频词汇2000+、语法整理、历年真题解析。</div><div class="lk-ft"><div class="lk-st"><span>📦</span><span>↓ 987</span><span>★4.7</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="lang" data-lt="vid" data-lp="paid"><div class="lk-img"><img src="https://images.unsplash.com/photo-1546872006-c4a85b18ee7e?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-vid">课程</span><span class="lk-paid">付费</span></div><div class="lk-ttl">零基础学英语口语：日常+职场</div><div class="lk-desc">专为中文母语者设计，发音纠正+场景对话+职场英语。</div><div class="lk-ft"><div class="lk-st"><span>🎬 48集</span><span>★4.8</span><span style="color:var(--rose)">¥79</span></div><button class="lk-btn">了解</button></div></div></div>
+        <div class="lk" data-lc="immigr" data-lt="gd" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-gd">指南</span><span class="lk-free">免费</span></div><div class="lk-ttl">2024香港优才/高才计划申请全指南</div><div class="lk-desc">申请资格、评分标准、材料清单、成功案例，过来人整理。</div><div class="lk-ft"><div class="lk-st"><span>📋</span><span>↓ 3,102</span><span>★5.0</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="immigr" data-lt="gd" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-gd">指南</span><span class="lk-free">免费</span></div><div class="lk-ttl">加拿大移民路径总览：EE/PNP/SUV</div><div class="lk-desc">快速通道、省提名、创业签证对比，含分数线历史趋势。</div><div class="lk-ft"><div class="lk-st"><span>📋</span><span>↓ 1,876</span><span>★4.9</span></div><button class="lk-btn">获取</button></div></div></div>
+        <div class="lk" data-lc="job" data-lt="tpl" data-lp="free"><div class="lk-img"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=300&q=70" alt=""/></div><div class="lk-body"><div class="lk-top"><span class="lk-ty lt-tpl">模板</span><span class="lk-free">免费</span></div><div class="lk-ttl">四大/咨询/互联网简历模板（12份）</div><div class="lk-desc">通过率最高12份，含STAR写作指南，适配ATS系统。</div><div class="lk-ft"><div class="lk-st"><span>📄 12份</span><span>↓ 2,108</span><span>★4.9</span></div><button class="lk-btn">获取</button></div></div></div>
+      </div>
+      <div class="lib-cta">
+        <div class="lct"><h4>你有好料，分享给姐妹们</h4><p>把你踩过的坑、整理过的资料、用过的工具投进来，让下一个她少走弯路</p></div>
+        <button class="btn-r" onclick="openOv('ov-fuel')">投入燃料库 ✦</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 5 MY -->
+<div class="pnl" id="p-me">
+  <div class="sec-hd"><div><div class="sec-lbl">Profile</div><h1 class="sec-ttl">我的 <em>主页</em></h1></div></div>
+  <div style="padding:0 2rem 2.5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:11px;max-width:680px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--rose)">2</div><div style="font-size:11px;color:var(--muted);margin-top:3px">发布的愿</div></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--sage)">5</div><div style="font-size:11px;color:var(--muted);margin-top:3px">帮助过的姐妹</div></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--gold)">3</div><div style="font-size:11px;color:var(--muted);margin-top:3px">接受的帮助</div></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--sky)">8</div><div style="font-size:11px;color:var(--muted);margin-top:3px">燃料库贡献</div></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ════ MODALS ════ -->
+<div class="ov" id="ov-wish">
+  <div class="modal">
+    <div class="mhd"><h2>✍️ 发布我的愿</h2><p>越具体，越容易得到精准帮助</p></div>
+    <div class="mbd">
+      <div class="fld" style="margin-bottom:.9rem"><label>求助领域</label>
+        <div class="dg8"><button class="db" onclick="this.classList.toggle('on')">🎓 留学</button><button class="db" onclick="this.classList.toggle('on')">🚀 创业</button><button class="db" onclick="this.classList.toggle('on')">💼 求职</button><button class="db" onclick="this.classList.toggle('on')">💡 技能</button><button class="db" onclick="this.classList.toggle('on')">📝 考研</button><button class="db" onclick="this.classList.toggle('on')">🌍 海外</button><button class="db" onclick="this.classList.toggle('on')">🔗 人脉</button><button class="db" onclick="this.classList.toggle('on')">✨ 其他</button></div>
+      </div>
+      <div class="fld"><label>一句话标题</label><input type="text" placeholder="例：想去伦敦读设计，缺少申请资金和经验"/></div>
+      <div class="fld"><label>你的故事</label><textarea placeholder="简单说说你的背景、你的梦想从哪里来…"></textarea></div>
+      <div class="fld"><label>你具体需要什么</label><textarea placeholder="资金（多少元）/ 信息 / 人脉，越具体越好"></textarea></div>
+      <div class="fld"><label>获得帮助后的计划</label><textarea placeholder="拿到帮助后怎么用？时间线是什么？"></textarea></div>
+      <div class="fld"><label>实现后，你将如何传递</label><textarea placeholder="你愿意为下一位姐妹做什么？"></textarea></div>
+    </div>
+    <div class="mft"><button class="btn-o" onclick="closeOv('ov-wish')">取消</button><button class="btn-r" onclick="sub('ov-wish','你的愿已发布！姐妹们将看见你 ✨')">发布我的愿 ✨</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-sup">
+  <div class="modal" style="max-width:440px">
+    <div class="mhd"><h2 id="supTtl">支持她</h2><p>捐款直达本人 · 不经平台 · 安全透明</p></div>
+    <div class="mbd">
+      <div class="safe-note">🛡️ 所有资金支持直接转至对方个人账户，Pass It On 不经手任何资金，全程透明可查。</div>
+      <div class="fld"><label>支持方式</label>
+        <div style="display:flex;gap:7px"><button class="db on" style="flex:1" onclick="selDB(this)">💰 资金</button><button class="db" style="flex:1" onclick="selDB(this)">🔗 信息/人脉</button><button class="db" style="flex:1" onclick="selDB(this)">💬 仅留言</button></div>
+      </div>
+      <div class="fld"><label>留言给她</label><textarea placeholder="我可以提供… 或者想对她说的话"></textarea></div>
+    </div>
+    <div class="mft"><button class="btn-o" onclick="closeOv('ov-sup')">取消</button><button class="btn-r" onclick="sub('ov-sup','连接请求已发送！对方会收到通知 💕')">发送连接请求 →</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-fuel">
+  <div class="modal" style="max-width:460px">
+    <div class="mhd"><h2>投入燃料库</h2><p>分享有价值的资料、工具或课程</p></div>
+    <div class="mbd">
+      <div class="fld" style="margin-bottom:.9rem"><label>资源类型</label>
+        <div class="dg5"><button class="db" onclick="this.classList.toggle('on')">📄 PDF</button><button class="db" onclick="this.classList.toggle('on')">🎬 视频</button><button class="db" onclick="this.classList.toggle('on')">🛠 工具</button><button class="db" onclick="this.classList.toggle('on')">📚 课程</button><button class="db" onclick="this.classList.toggle('on')">📝 模板</button></div>
+      </div>
+      <div class="fld" style="margin-bottom:.9rem"><label>适用领域</label>
+        <div class="dg8"><button class="db" onclick="this.classList.toggle('on')">📝 考研</button><button class="db" onclick="this.classList.toggle('on')">🎓 留学</button><button class="db" onclick="this.classList.toggle('on')">🗣️ 语言</button><button class="db" onclick="this.classList.toggle('on')">💼 求职</button><button class="db" onclick="this.classList.toggle('on')">🚀 创业</button><button class="db" onclick="this.classList.toggle('on')">🌍 移民</button><button class="db" onclick="this.classList.toggle('on')">💡 技能</button><button class="db" onclick="this.classList.toggle('on')">✨ 其他</button></div>
+      </div>
+      <div class="fld"><label>资源名称</label><input type="text" placeholder="给这份资料取个准确的名字"/></div>
+      <div class="fld"><label>简介</label><textarea placeholder="简单说说这份资料能帮姐妹解决什么问题…"></textarea></div>
+      <div class="fld"><label>链接 / 说明</label><input type="url" placeholder="粘贴资源链接（文件上传即将支持）"/></div>
+    </div>
+    <div class="mft"><button class="btn-o" onclick="closeOv('ov-fuel')">取消</button><button class="btn-r" onclick="sub('ov-fuel','资源已提交审核，感谢你的投入 ✦')">投入燃料库 ✦</button></div>
+  </div>
+</div>
+
+<script>
+// NAVIGATION
+const pnls={wish:'p-wish',help:'p-help',pio:'p-pio',fuel:'p-fuel',me:'p-me'};
+const siMap={wish:0,help:1,pio:2,fuel:3,me:4};
+function go(t){
+  Object.values(pnls).forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById(pnls[t]).classList.add('on');
+  document.querySelectorAll('.sn').forEach((s,i)=>{s.classList.remove('on');if(i===siMap[t])s.classList.add('on')});
+  document.getElementById('mainScroll').scrollTop=0;
+}
+function logout(){
+  localStorage.removeItem('pio_demo_session');
+  sessionStorage.removeItem('pio_demo_session');
+  window.location.href='login.html';
+}
+
+// NOTIF
+function toggleND(){document.getElementById('nd').classList.toggle('open')}
+function clearND(){document.querySelectorAll('.nd-dot').forEach(d=>d.classList.add('r'));const p=document.getElementById('npip');if(p)p.remove()}
+document.addEventListener('click',e=>{
+  const d=document.getElementById('nd'),b=document.getElementById('nbtn');
+  if(d&&!d.contains(e.target)&&!b.contains(e.target))d.classList.remove('open');
+});
+
+// GENERIC FILTER
+function fc(gridId,attr,val,btn){
+  btn.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('#'+gridId+' ['+attr+']').forEach(c=>{
+    c.style.display=(val==='all'||c.getAttribute(attr)===val)?'':'none';
+  });
+}
+
+// LIB FILTERS
+function fl(v,btn){document.querySelectorAll('.lib-nav .ln-it').forEach(i=>i.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('#lg [data-lc]').forEach(c=>c.style.display=(v==='all'||c.dataset.lc===v)?'':'none')}
+function flt(v,btn){document.querySelectorAll('.lib-nav .ln-it').forEach(i=>i.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('#lg [data-lt]').forEach(c=>c.style.display=c.dataset.lt===v?'':'none')}
+function flp(v,btn){document.querySelectorAll('.lib-nav .ln-it').forEach(i=>i.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('#lg [data-lp]').forEach(c=>c.style.display=c.dataset.lp===v?'':'none')}
+
+// QUOTA
+let td=1,wk=2;const DL=2,WL=3;
+function accept(btn,name){
+  if(td>=DL){toast('今日帮助次数已达上限（2次），明天再来吧 💕','err');return}
+  if(wk>=WL){toast('本周帮助次数已达上限（3次），下周一0点重置 💕','err');return}
+  td++;wk++;
+  btn.textContent='✓ 已连接';btn.classList.remove('sage');btn.classList.add('dis');btn.disabled=true;
+  updateQ();toast('已与 '+name+' 建立连接！她会收到通知 ✨');
+}
+function updateQ(){
+  const r=DL-td;
+  document.getElementById('remT').textContent=r;
+  document.getElementById('tdU').textContent=td;
+  document.getElementById('wkU').textContent=wk;
+  document.getElementById('wkFill').style.width=(wk/WL*100)+'%';
+  document.getElementById('wkInfo').textContent='已接受 '+wk+'/'+WL+' 次 · 周日0点重置';
+  document.getElementById('quotaChip').innerHTML='⚡ 今日剩余 <strong>'+r+'</strong> 次帮助';
+}
+
+// MODALS
+function openOv(id){document.getElementById(id).classList.add('open')}
+function closeOv(id){document.getElementById(id).classList.remove('open')}
+function openSup(name,type){document.getElementById('supTtl').textContent='支持 '+name+' · '+type;openOv('ov-sup')}
+function sub(id,msg){closeOv(id);setTimeout(()=>toast(msg),200)}
+function selDB(btn){btn.closest('div').querySelectorAll('.db').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+['ov-wish','ov-sup','ov-fuel'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeOv(id)})});
+
+// TOAST
+function toast(msg,type='dark'){
+  const t=document.createElement('div');
+  t.className='toast '+type;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+</script>
+</body>
+</html>
