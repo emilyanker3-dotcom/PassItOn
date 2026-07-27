@@ -31,6 +31,13 @@ body{min-height:100vh;background:var(--cream);color:var(--ink);font-family:'Noto
 .demo-title{font-size:12px;font-weight:500;color:var(--sage);margin-bottom:6px}
 .demo-row{font-size:12px;color:var(--muted);line-height:1.8}
 .demo-row code{color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.quick-entry{background:#fff;border:1px solid var(--border);padding:18px;margin-bottom:1.8rem}
+.quick-entry strong{display:block;font-family:'Noto Serif SC',serif;font-size:17px;margin-bottom:6px}
+.quick-entry p{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.quick-login{width:100%;height:50px;border:0;border-radius:50px;background:var(--rose);color:#fff;font:500 14px 'Noto Sans SC',sans-serif;cursor:pointer;transition:.2s}
+.quick-login:hover{background:#b93e60;transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,75,110,.22)}
+.login-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:11px;margin:0 0 1.5rem}
+.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--border);flex:1}
 .field{margin-bottom:1.1rem}
 .field label{display:block;font-size:12px;font-weight:500;margin-bottom:7px}
 .field input{width:100%;height:48px;border:1px solid var(--border);background:#fff;padding:0 14px;border-radius:7px;font:14px 'Noto Sans SC',sans-serif;outline:none;transition:.2s}
@@ -63,8 +70,14 @@ body{min-height:100vh;background:var(--cream);color:var(--ink);font-family:'Noto
   <section class="login-panel">
     <div class="login-card">
       <a class="back" href="index.html">← 返回首页</a>
-      <h2>登录社区</h2>
-      <p class="intro">使用测试账号进入完整的社区主界面。</p>
+      <h2>进入产品体验</h2>
+      <p class="intro">这是尚未公开开放的产品测试环境，面试官可直接进入完整社区界面。</p>
+      <div class="quick-entry">
+        <strong>面试官快捷入口</strong>
+        <p>无需注册或填写账号，点击后即可查看产品的实际运行界面。</p>
+        <button class="quick-login" type="button" id="quickLogin">一键进入测试版 →</button>
+      </div>
+      <div class="login-divider">或使用测试账号</div>
       <div class="demo-box">
         <div class="demo-title">测试账号</div>
         <div class="demo-row">邮箱：<code>demo@passiton.cn</code></div>
@@ -74,10 +87,10 @@ body{min-height:100vh;background:var(--cream);color:var(--ink);font-family:'Noto
         <div class="error" id="loginError" role="alert">账号或密码不正确，请使用上方测试账号。</div>
         <div class="field"><label for="email">邮箱</label><input id="email" name="email" type="email" autocomplete="username" value="demo@passiton.cn" required/></div>
         <div class="field"><label for="password">密码</label><div class="password-wrap"><input id="password" name="password" type="password" autocomplete="current-password" value="PassItOn2026" required/><button class="show-pass" type="button" id="showPassword">显示</button></div></div>
-        <div class="form-row"><label class="remember"><input id="remember" type="checkbox" checked/> 保持登录</label><span>本地演示账号</span></div>
+        <div class="form-row"><label class="remember"><input id="remember" type="checkbox" checked/> 保持登录</label><span>备用测试账号</span></div>
         <button class="submit" type="submit">登录并进入社区 →</button>
       </form>
-      <p class="legal">此登录仅用于本机产品演示，不连接真实用户数据库。</p>
+      <p class="legal">此入口仅用于产品展示，不连接真实用户数据库，也不会收集访客信息。</p>
     </div>
   </section>
 </main>
@@ -88,6 +101,12 @@ const form=document.getElementById('loginForm');
 const email=document.getElementById('email');
 const password=document.getElementById('password');
 const error=document.getElementById('loginError');
+function enterDemo(){
+  localStorage.setItem('pio_demo_session','active');
+  localStorage.setItem('pio_demo_user','林晚');
+  window.location.href='dashboard.html';
+}
+document.getElementById('quickLogin').addEventListener('click',enterDemo);
 document.getElementById('showPassword').addEventListener('click',function(){
   const showing=password.type==='text';
   password.type=showing?'password':'text';
