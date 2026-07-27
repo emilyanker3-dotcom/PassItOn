@@ -8,6 +8,9 @@
 if(localStorage.getItem('pio_demo_session')!=='active'&&sessionStorage.getItem('pio_demo_session')!=='active'){
   window.location.replace('login.html');
 }
+const savedTheme=localStorage.getItem('pio_theme')||'system';
+const initialTheme=savedTheme==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):savedTheme;
+document.documentElement.dataset.theme=initialTheme;
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap" rel="stylesheet">
@@ -27,6 +30,20 @@ if(localStorage.getItem('pio_demo_session')!=='active'&&sessionStorage.getItem('
 }
 html,body{height:100%;overflow:hidden}
 body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--ink)}
+html[data-theme="dark"]{
+  --ink:#f4eee7;--ink2:#ddd2c7;--muted:#aea196;--muted2:#82766d;
+  --border:rgba(255,255,255,.13);--border2:rgba(255,255,255,.07);
+  --rose:#e06b87;--rose2:#ed8ca0;--rose-bg:rgba(224,107,135,.13);--rose-glow:rgba(224,107,135,.3);
+  --gold:#d0a84d;--gold-bg:rgba(208,168,77,.13);
+  --sage:#66b58f;--sage-bg:rgba(102,181,143,.13);--sage-glow:rgba(102,181,143,.28);
+  --sky:#70b6de;--sky-bg:rgba(112,182,222,.13);--amber:#df995d;--amber-bg:rgba(223,153,93,.13);
+  --cream:#151311;--surface:#211e1b;--card:#1b1816;--dark:#090807;--dark2:#21140f;
+  color-scheme:dark;
+}
+html[data-theme="dark"] .topbar,html[data-theme="dark"] .sidebar{background:rgba(21,19,17,.95)}
+html[data-theme="dark"] .tb-search:focus-within{background:var(--card)}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select{color:var(--ink);background:var(--surface);border-color:var(--border)}
+html[data-theme="dark"] img{filter:brightness(.88)}
 
 /* ─── TOPBAR ─── */
 .topbar{
@@ -158,6 +175,17 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--i
 .sn:hover .tt{opacity:1}
 .s-div{width:24px;height:1px;background:var(--border);margin:4px 0}
 .s-bot{margin-top:auto}
+
+/* SETTINGS */
+.settings-list{display:grid;gap:16px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.setting-copy strong{display:block;font-size:13px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.setting-copy span{display:block;font-size:11px;color:var(--muted);line-height:1.6}
+.theme-options{display:flex;gap:5px;background:var(--card);border:1px solid var(--border);padding:4px;border-radius:9px;flex-shrink:0}
+.theme-option{border:0;background:transparent;color:var(--muted);font:12px 'Noto Sans SC',sans-serif;padding:8px 11px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.theme-option:hover{color:var(--ink);background:var(--surface)}
+.theme-option.on{background:var(--rose);color:#fff}
+@media(max-width:560px){.setting-row{display:block}.theme-options{margin-top:14px;width:100%}.theme-option{flex:1;padding:9px 5px}}
 
 /* ─── MAIN SCROLL AREA ─── */
 .main{
@@ -592,7 +620,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--i
   <div class="sn" onclick="go('me')"><span class="profile-icon" aria-hidden="true"></span><div class="tt">我的</div></div>
   <div class="s-bot">
     <div class="s-div"></div>
-    <div class="sn" style="margin-top:4px">⚙️<div class="tt">设置</div></div>
+    <div class="sn" style="margin-top:4px" onclick="openSettings()">⚙️<div class="tt">设置</div></div>
   </div>
 </div>
 
@@ -1100,7 +1128,48 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--i
   </div>
 </div>
 
+<div class="ov" id="ov-settings">
+  <div class="modal" style="max-width:560px">
+    <div class="mhd"><h2>⚙️ 设置</h2><p>调整界面外观和产品体验偏好</p></div>
+    <div class="mbd">
+      <div class="settings-list">
+        <div class="setting-row">
+          <div class="setting-copy"><strong>外观模式</strong><span>选择舒适的界面主题，设置会保存在当前浏览器。</span></div>
+          <div class="theme-options" role="group" aria-label="外观模式">
+            <button class="theme-option" type="button" data-theme-choice="light" onclick="setTheme('light')">☀️ 浅色</button>
+            <button class="theme-option" type="button" data-theme-choice="dark" onclick="setTheme('dark')">🌙 深色</button>
+            <button class="theme-option" type="button" data-theme-choice="system" onclick="setTheme('system')">自动</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>演示环境</strong><span>当前使用面试官测试账号，所有操作均为产品演示数据。</span></div>
+          <span style="font-size:11px;color:var(--sage);background:var(--sage-bg);padding:6px 10px;border-radius:50px;white-space:nowrap">安全模式</span>
+        </div>
+      </div>
+    </div>
+    <div class="mft"><button class="btn-r" onclick="closeOv('ov-settings')">完成</button></div>
+  </div>
+</div>
+
 <script>
+// APPEARANCE
+const systemTheme=window.matchMedia('(prefers-color-scheme: dark)');
+function resolvedTheme(choice){return choice==='system'?(systemTheme.matches?'dark':'light'):choice}
+function updateThemeControls(){
+  const choice=localStorage.getItem('pio_theme')||'system';
+  document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.classList.toggle('on',btn.dataset.themeChoice===choice));
+}
+function setTheme(choice){
+  localStorage.setItem('pio_theme',choice);
+  document.documentElement.dataset.theme=resolvedTheme(choice);
+  updateThemeControls();
+  toast(choice==='dark'?'已切换至深色模式':choice==='light'?'已切换至浅色模式':'已设置为跟随系统');
+}
+function openSettings(){updateThemeControls();openOv('ov-settings')}
+systemTheme.addEventListener('change',()=>{
+  if((localStorage.getItem('pio_theme')||'system')==='system')document.documentElement.dataset.theme=resolvedTheme('system');
+});
+
 // NAVIGATION
 const pnls={wish:'p-wish',help:'p-help',pio:'p-pio',fuel:'p-fuel',me:'p-me'};
 const siMap={wish:0,help:1,pio:2,fuel:3,me:4};
